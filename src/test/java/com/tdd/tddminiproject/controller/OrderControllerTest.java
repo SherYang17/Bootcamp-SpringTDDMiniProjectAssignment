@@ -49,6 +49,8 @@ public class OrderControllerTest {
     // Part 5
     @Test
     public void createOrder_ValidationErrors_ShouldReturnBadRequest() throws Exception {
+        // Status shows = 400 which is bad request
+        // Body will say Body = ["must not be empty","must not be empty","must be greater than 0","must not be null"]
         String request = "{ \"customerName\": \"\", \"orderDate\": null, \"shippingAddress\": \"\", \"total\": -10.0 }";
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/create")
@@ -61,6 +63,7 @@ public class OrderControllerTest {
 
     // part 6
     @Test
+    // Body will Body = Order with ID 999 not found.
     public void updateOrder_OrderNotFound() throws Exception {
         String orderId = "999"; // Assuming order with ID 999 does not exist
         String request = "{\"customerName\": \"John Doe\", \"orderDate\": \"2023-07-06\", \"shippingAddress\": \"123 Main St\", \"total\": 100.0}";
@@ -75,65 +78,3 @@ public class OrderControllerTest {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-//package com.tdd.tddminiproject.controller;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.tdd.tddminiproject.model.Order;
-//import com.tdd.tddminiproject.repository.OrderRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//import org.springframework.web.context.WebApplicationContext;
-//
-//import java.time.LocalDate;
-//
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-//
-//@SpringBootTest
-//public class OrderControllerTest {
-//
-//    private MockMvc mockMvc;
-//
-//    @InjectMocks
-//    private OrderController orderController;
-//
-//    @Mock
-//    private OrderRepository orderRepository;
-//
-//    @Autowired
-//    private WebApplicationContext webApplicationContext;
-//
-//    @BeforeEach
-//    public void setUp() {
-//        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-//    }
-//
-//    @Test
-//    public void createOrder_ShouldReturnBadRequest_WhenRequestIsInvalid() throws Exception {
-//        Order order = new Order("", LocalDate.now(), "", -100.0);
-//
-//        mockMvc.perform(post("/order/create")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(new ObjectMapper().writeValueAsString(order)))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//
-//}

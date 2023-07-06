@@ -21,67 +21,65 @@ public class OrderRepositoryTests {
     private OrderRepository orderRepository;
 
 
-    // Every test below is part 3
+    // Part 3: Test for save (Create)
     @Test
-    public void testSaveOrder(){
-        Order orders = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
-        Order savedOrder = orderRepository.save(orders);
-
-        Order existingOrder = entityManager.find(Order.class, savedOrder.getId());
-        Assertions.assertNotNull(existingOrder);
-        Assertions.assertEquals(existingOrder.getCustomerName(), orders.getCustomerName());
-        Assertions.assertEquals(existingOrder.getShippingAddress(), orders.getShippingAddress());
-        Assertions.assertEquals(existingOrder.getTotal(), orders.getTotal());
-    }
-
-    @Test
-    public void testPass() {
+    public void testSaveOrder() {
         // Create an Order object
         Order order = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
 
-        // Save the Order object using the repository
+        // Save the Order using the repository
         Order savedOrder = orderRepository.save(order);
 
-        // Verify that the Order object is saved and has a valid ID
+        // Verify that the Order is saved with a non-null ID
         Assertions.assertNotNull(savedOrder.getId());
+        Assertions.assertEquals(order.getCustomerName(), savedOrder.getCustomerName());
+        Assertions.assertEquals(order.getShippingAddress(), savedOrder.getShippingAddress());
+        Assertions.assertEquals(order.getTotal(), savedOrder.getTotal());
     }
 
     @Test
-    public void testFail() {
-        // Create an Order object
-        Order order = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
+    public void testSaveOrder_Fail() {
+        // Create an Order object without required fields
+        Order order = new Order(); // Empty Order object
 
-        // Save the Order object using the repository
+        // Save the Order using the repository
         Order savedOrder = orderRepository.save(order);
 
-        // Verify that the Order object is saved and has a valid ID
-        Assertions.assertNull(savedOrder.getId()); // Actual = 1 meaning id1 was created but is not seen due to assertnull. It passes even tho it looks like it failed
+        // Verify that the Order is not saved due to validation failure
+        Assertions.assertNull(savedOrder.getId());
     }
 
+    // Part 3: Test for read (Retrieve)
     @Test
-    public void testDeleteNonExistingOrder() {
-        // Create an Order object with a non-existing ID
-        Order order = new Order();
-        order.setId(999L);
-
-        // Attempt to delete the Order using the repository
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> orderRepository.delete(order));
-    }
-
-    @Test
-    public void testDeleteOrder() {
-        // Create an Order object
+    public void testGetOrder() {
+        // Create an Order object and save it to the database
         Order order = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
         Order savedOrder = entityManager.persistAndFlush(order);
 
-        // Delete the Order using the repository
-        orderRepository.deleteById(savedOrder.getId());
+        // Retrieve the Order from the database using its ID
+        Optional<Order> retrievedOrder = orderRepository.findById(savedOrder.getId());
 
-        // Verify that the Order is no longer present in the database
-        boolean orderExists = orderRepository.existsById(savedOrder.getId());
-        Assertions.assertFalse(orderExists);
+        // Verify that the retrieved Order matches the original Order
+        Assertions.assertTrue(retrievedOrder.isPresent());
+        Assertions.assertEquals(savedOrder.getId(), retrievedOrder.get().getId());
+        Assertions.assertEquals(savedOrder.getCustomerName(), retrievedOrder.get().getCustomerName());
+        Assertions.assertEquals(savedOrder.getShippingAddress(), retrievedOrder.get().getShippingAddress());
+        Assertions.assertEquals(savedOrder.getTotal(), retrievedOrder.get().getTotal());
     }
 
+    @Test
+    public void testGetOrder_NonExistingId_Fail() {
+        // Attempt to retrieve an Order with a non-existing ID
+        Long nonExistingId = 999L;
+
+        // Retrieve the Order from the database using the non-existing ID
+        Optional<Order> retrievedOrder = orderRepository.findById(nonExistingId);
+
+        // Verify that the retrieved Order is empty
+        Assertions.assertFalse(retrievedOrder.isPresent());
+    }
+
+    // Part 3: Test for update
     @Test
     public void testUpdateOrder() {
         // Create an Order object and save it to the database
@@ -101,89 +99,38 @@ public class OrderRepositoryTests {
     }
 
     @Test
-    public void testReadOrder() {
+    public void testUpdateOrder_NonExistingId_Fail() {
+        // Create an Order object with a non-existing ID
+        Order order = new Order();
+        order.setId(999L);
+
+        // Attempt to update the Order using the repository
+        Assertions.assertThrows(RuntimeException.class, () -> orderRepository.save(order));
+    }
+
+    // Part 3: Test for delete
+    @Test
+    public void testDeleteOrder() {
         // Create an Order object and save it to the database
         Order order = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
         Order savedOrder = entityManager.persistAndFlush(order);
 
-        // Retrieve the Order from the database using its ID
-        Optional<Order> retrievedOrder = orderRepository.findById(savedOrder.getId());
+        // Delete the Order using the repository
+        orderRepository.deleteById(savedOrder.getId());
 
-        // Verify that the retrieved Order matches the original Order
-        Assertions.assertTrue(retrievedOrder.isPresent());
-        Assertions.assertEquals(savedOrder.getId(), retrievedOrder.get().getId());
-        Assertions.assertEquals(savedOrder.getCustomerName(), retrievedOrder.get().getCustomerName());
-        Assertions.assertEquals(savedOrder.getShippingAddress(), retrievedOrder.get().getShippingAddress());
-        Assertions.assertEquals(savedOrder.getTotal(), retrievedOrder.get().getTotal());
+        // Verify that the Order is no longer present in the database
+        boolean orderExists = orderRepository.existsById(savedOrder.getId());
+        Assertions.assertFalse(orderExists);
     }
+
 
     @Test
-    public void testCreateOrder() {
-        // Create an Order object
-        Order order = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
+    public void testDeleteOrder_NonExistingId_Fail() {
+        // Attempt to delete an Order with a non-existing ID
+        Long nonExistingId = 999L;
 
-        // Save the Order using the repository
-        Order savedOrder = orderRepository.save(order);
-
-        // Verify that the Order is saved with a non-null ID
-        Assertions.assertNotNull(savedOrder.getId());
+        // Attempt to delete the Order using the repository
+        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> orderRepository.deleteById(nonExistingId));
     }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//package com.tdd.tddminiproject.repository;
-//
-//import com.tdd.tddminiproject.model.Order;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-//import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-//
-//import java.time.LocalDate;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
-//
-//@DataJpaTest
-//public class OrderRepositoryTests {
-//
-//    @Autowired
-//    private OrderRepository orderRepository;
-//
-//    @Autowired
-//    private TestEntityManager entityManager;
-//
-//
-////    @Test
-////    public void testSaveOrder() {
-//        // Create a new Order object
-////        Order order = new Order("John Doe", LocalDate.now(), "123 Main St", 100.0);
-////        orderRepository.save(order);
-//        // Save the order to the repository
-////        Order savedOrder = orderRepository.save(order);
-//
-//        // Verify that the order is saved and assigned an id
-////        assertNotNull(savedOrder.getId());
-////        assertEquals(order.getCustomerName(), savedOrder.getCustomerName());
-////        assertEquals(order.getOrderDate(), savedOrder.getOrderDate());
-////        assertEquals(order.getShippingAddress(), savedOrder.getShippingAddress());
-////        assertEquals(order.getTotal(), savedOrder.getTotal());
-//    }

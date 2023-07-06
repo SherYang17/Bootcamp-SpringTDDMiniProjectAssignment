@@ -22,7 +22,7 @@ public class OrderController{
     private OrderRepository orderRepository;
 
     @GetMapping("/{orderId}") //path parameter
-    public ResponseEntity<Order> getOrder(@PathVariable String orderId){
+    public ResponseEntity<Order> getOrder(@PathVariable String orderId){ // READ
 
         Order myOrder = null;
         Optional<Order> myOrderOpt = orderRepository.findById(Long.valueOf(orderId));
@@ -37,7 +37,7 @@ public class OrderController{
 
     // part 6
     @PutMapping("/{orderId}")
-    public ResponseEntity<Object> updateOrder(@PathVariable String orderId, @Valid @RequestBody Order updatedOrder) {
+    public ResponseEntity<Object> updateOrder(@PathVariable String orderId, @Valid @RequestBody Order updatedOrder) { //update
         Optional<Order> existingOrderOpt = orderRepository.findById(Long.valueOf(orderId));
         if (existingOrderOpt.isEmpty()) {
             throw new RuntimeException("Order with ID " + orderId + " not found.");
@@ -58,7 +58,7 @@ public class OrderController{
 
 
     @PostMapping("/create")
-    public ResponseEntity<Object> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) {
+    public ResponseEntity<Object> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) { // CREATE
         if (bindingResult.hasErrors()) {
             // Retrieve all validation errors
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -80,6 +80,18 @@ public class OrderController{
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
     }
 
+    @DeleteMapping("/{orderId}") // DELETE
+    public ResponseEntity<Object> deleteOrder(@PathVariable String orderId) {
+        Optional<Order> existingOrderOpt = orderRepository.findById(Long.valueOf(orderId));
+        if (existingOrderOpt.isEmpty()) {
+            throw new RuntimeException("Order with ID " + orderId + " not found.");
+        }
+
+        // Delete the order from the database
+        orderRepository.delete(existingOrderOpt.get());
+
+        return ResponseEntity.noContent().build();
+    }
 
 
 
