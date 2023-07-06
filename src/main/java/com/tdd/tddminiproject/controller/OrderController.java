@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.FieldError;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +37,56 @@ public class OrderController{
 
     }
 
+
+    @PostMapping("/create")
+    public ResponseEntity<Object> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // Retrieve all validation errors
+            List<FieldError> errors = bindingResult.getFieldErrors();
+
+            // Create a list of error messages
+            List<String> errorMessages = new ArrayList<>();
+            for (FieldError error : errors) {
+                errorMessages.add(error.getDefaultMessage());
+            }
+
+            // Return a bad request response with the list of error messages
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+
+        // Perform the logic to save the order to the database
+        Order savedOrder = orderRepository.save(order);
+
+        // Return the saved order in the response with a success status
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+    }
+
+
+
+
+
+
+
+
+    // Code for part 4
+//    @PostMapping("/create")
+//    public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) {
+//        if (bindingResult.hasErrors()) {
+//            // Handle validation errors and return a bad request response
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//
+//        // Perform the logic to save the order to the database
+//        Order savedOrder = orderRepository.save(order);
+//
+//        // Return the saved order in the response with a success status
+//        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+//    }
+
+
+
+
+    // Part 5 I had to remove this below. It doens't work after part 5...
 //    @PostMapping("/create")
 //    public ResponseEntity<Order> createOrder(@RequestBody String request){
 //        Order newOrder = new Order();
@@ -45,21 +97,19 @@ public class OrderController{
 ////        return null;
 //    }
 
-
-
     // Code for rest api part 5
-    @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            String errorMessage = bindingResult.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .findFirst()
-                    .orElseGet(() -> new FieldError("", "", "Invalid order data.").getDefaultMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
-        // Code to save the order and return the response
-    }
+//    @PostMapping("/create")
+//    public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order, BindingResult bindingResult) {
+//        if (bindingResult.hasErrors()) {
+//            String errorMessage = bindingResult.getFieldErrors()
+//                    .stream()
+//                    .map(FieldError::getDefaultMessage)
+//                    .findFirst()
+//                    .orElseGet(() -> new FieldError("", "", "Invalid order data.").getDefaultMessage());
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//        }
+//        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+//        // Code to save the order and return the response
+//    }
 
 }

@@ -20,6 +20,8 @@ public class OrderRepositoryTests {
     @Autowired
     private OrderRepository orderRepository;
 
+
+    // Every test below is part 3
     @Test
     public void testSaveOrder(){
         Order orders = new Order("John Doe", LocalDate.now(), "123 Street, City, State", 200.0);
