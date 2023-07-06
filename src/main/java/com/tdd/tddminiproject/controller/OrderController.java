@@ -33,8 +33,27 @@ public class OrderController{
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+    }
 
+    // part 6
+    @PutMapping("/{orderId}")
+    public ResponseEntity<Object> updateOrder(@PathVariable String orderId, @Valid @RequestBody Order updatedOrder) {
+        Optional<Order> existingOrderOpt = orderRepository.findById(Long.valueOf(orderId));
+        if (existingOrderOpt.isEmpty()) {
+            throw new RuntimeException("Order with ID " + orderId + " not found.");
+        }
 
+        // Update the existing order with the new data
+        Order existingOrder = existingOrderOpt.get();
+        existingOrder.setCustomerName(updatedOrder.getCustomerName());
+        existingOrder.setOrderDate(updatedOrder.getOrderDate());
+        existingOrder.setShippingAddress(updatedOrder.getShippingAddress());
+        existingOrder.setTotal(updatedOrder.getTotal());
+
+        // Save the updated order
+        Order savedOrder = orderRepository.save(existingOrder);
+
+        return ResponseEntity.ok(savedOrder);
     }
 
 

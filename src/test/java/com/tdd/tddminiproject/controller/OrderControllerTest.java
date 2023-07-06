@@ -59,6 +59,19 @@ public class OrderControllerTest {
     }
 
 
+    // part 6
+    @Test
+    public void updateOrder_OrderNotFound() throws Exception {
+        String orderId = "999"; // Assuming order with ID 999 does not exist
+        String request = "{\"customerName\": \"John Doe\", \"orderDate\": \"2023-07-06\", \"shippingAddress\": \"123 Main St\", \"total\": 100.0}";
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/order/" + orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
 
 }
 
